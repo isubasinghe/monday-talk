@@ -37,6 +37,7 @@ pub mod modes;
 pub mod multiset;
 pub mod function;
 pub mod state_machine_internal;
+pub mod seqptr;
 #[cfg(feature = "std")]
 pub mod thread;
 #[cfg(feature = "alloc")]

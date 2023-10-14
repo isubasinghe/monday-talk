@@ -225,6 +225,17 @@ impl<V> PPtr<V> {
         PPtr { uptr }
     }
 
+    #[inline(always)]
+    #[verifier(external_body)]
+    pub fn from_usize_assumed(u: usize) -> (pt: (PPtr<V>, Tracked<PointsTo<V>>))
+        ensures pt.1@@ === (PointsToData{ pptr: pt.0.id(), value: Option::None }),
+        opens_invariants none
+    {
+        let uptr = u as *mut MaybeUninit<V>;
+        let p = PPtr{uptr};
+        (p, Tracked::assume_new())
+    }
+
     /// Allocates heap memory for type `V`, leaving it uninitialized.
 
     #[inline(always)]
