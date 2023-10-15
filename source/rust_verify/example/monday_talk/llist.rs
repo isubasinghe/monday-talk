@@ -158,6 +158,11 @@ impl<V> LList<V> {
             self.wf(),
             self@ == old(self)@.push(v)
     {
+        // let new_tail = Node(v);
+        // let tail = self.tail;
+        // tail.nxt = new_tail;
+        // self.tail = new_tail;
+        
         let tail_ptr_u64 = self.tail;
         proof {
             lemma_usize_u64(tail_ptr_u64);
