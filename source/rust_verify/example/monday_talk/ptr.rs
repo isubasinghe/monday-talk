@@ -1,4 +1,3 @@
-
 use builtin_macros::*;
 #[allow(unused_imports)]
 use builtin::*;
@@ -14,14 +13,9 @@ use vstd::seqptr;
 verus! {
 
 
-fn increment(counter: PPtr<u64>, Tracked(perm) : Tracked<&mut PointsTo<u64>>) 
-    requires
-        counter.id() == old(perm)@.pptr,
-{
-
-}
-
-fn start_thread(counter: PPtr<u64>, Tracked(perm): Tracked<PointsTo<u64>>) 
+// PPtr -> abstraction over a pointer
+// Permission pointer
+fn start(counter: PPtr<u64>, Tracked(perm): Tracked<PointsTo<u64>>) 
     requires
         counter.id() == perm@.pptr, perm@.value === None,
 {
@@ -48,7 +42,6 @@ fn start_thread(counter: PPtr<u64>, Tracked(perm): Tracked<PointsTo<u64>>)
 fn raw_mem(addr: usize) {
     let (ptr, Tracked(mut perm)) = PPtr::<u8>::from_usize_assumed(addr);
     ptr.put(Tracked(&mut perm), 97);
-    ptr.replace(Tracked(&mut perm), 97);
     assert(perm@.value === Some(97));
 }
 
