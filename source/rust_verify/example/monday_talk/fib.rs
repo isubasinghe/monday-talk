@@ -8,7 +8,8 @@ verus!{
 
 // There needs to be a specification for fibo, 
 // we achieve this via the spec
-// No linear type checking, no looping
+// No linear type checking, no looping, no mutation
+// nats and ints not u32/i32
 spec fn fibo(n: nat) -> nat
     decreases n
 {

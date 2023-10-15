@@ -32,7 +32,7 @@ fn start(counter: PPtr<u64>, Tracked(perm): Tracked<PointsTo<u64>>)
     //
     //
     // we want to talk about Ghost state
-    //
+    // @ project's ghost state
     assert(perm@.value === Some(5));
 
 
@@ -40,7 +40,8 @@ fn start(counter: PPtr<u64>, Tracked(perm): Tracked<PointsTo<u64>>)
 
 
 fn raw_mem(addr: usize) {
-    let (ptr, Tracked(mut perm)) = PPtr::<u8>::from_usize_assumed(addr);
+    let (ptr, Tracked(mut perm)) = PPtr::<u8>::from_usize_assumed(addr); // assume usize to be a
+                                                                         // valid pointer
     ptr.put(Tracked(&mut perm), 97);
     assert(perm@.value === Some(97));
 }
@@ -51,10 +52,11 @@ fn seq_raw_mem(addr: usize, sz: usize) {
     ptr.write_offset(Tracked(&mut perm), 2, 1);
     ptr.write_offset(Tracked(&mut perm), 3, 2);
     ptr.write_offset(Tracked(&mut perm), 4, 3);
+    // ptr.write_offset(Tracked(&mut perm), 4, 5);
 }
 
 
-#[verifier(external_body)]
+#[verifier(external_body)] // not visible to SMT
 fn raw_addr() {
     let mut m: u8 = 2;
     let p_m: *mut u8 = &mut m;

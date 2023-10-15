@@ -16,11 +16,10 @@ use vstd::*;
 // Rust is infamous for being difficult to write a LinkedList in without the usage
 // of unsafe.
 //
-// Writing 
 //
 // Let's take a step back and ask why?
 //
-// Rust enforces affine types - safe
+// Rust enforces affine types - proven to be sound
 // Unfortunately this makes mutation impossible without moving 
 // For LL moving won't work - everything is chained together
 // Rc would work -> do you really want to use reference counting?
@@ -51,19 +50,19 @@ struct Node<V> {
 // A linkedList is just a sequence of things
 //
 // A->B->C->D
-// [A,B,C,D]
+// [ptr A,ptr B, ptr C, ptr D]
 // [perm A, perm B, perm C, perm D]
 //
 struct LList<V> {
     ptrs: Ghost<Seq<PPtr<Node<V>>>>, // Ghost state
-    perms: Tracked<Map<nat, PointsTo<Node<V>>>>, // Zero sized type
+    perms: Tracked<Map<nat, PointsTo<Node<V>>>>, // Ghost state
     head: u64,
     tail: u64
 }
 
 
 impl<V> LList<V> {
-
+    
     spec fn wf_perms(&self) -> bool {
         forall|i: nat| 0 <= i < self.ptrs@.len() ==> self.wf_perm(i)
     }
@@ -144,10 +143,10 @@ impl<V> LList<V> {
             (self.perms.borrow_mut())
                 .tracked_insert((self.ptrs@.len() - 1 ) as nat, perm);
         }
-        self.head = ptr.to_usize() as u64;
+        self.head = ptr.to_usize() as u64; // integer value of the pointer
         self.tail = ptr.to_usize() as u64;
         
-        assert(self@ =~= old(self)@.push(v));
+        assert(self@ =~= old(self)@.push(v)); // push the value into ghost state
         assert(self.ptrs@.len() == 1);
     }
 
@@ -183,6 +182,8 @@ impl<V> LList<V> {
             (self.perms.borrow_mut()).tracked_remove((self.ptrs@.len() -1) as nat);
 
         let mut tail_node = tail_ptr.take(Tracked(&mut tail_perm));
+        // PREVIOUS: TAIL.next = 0
+        // AFTER: TAIL.next -> new_ptr
         tail_node.nxt = new_ptr;
         tail_ptr.put(Tracked(&mut tail_perm), tail_node);
 
